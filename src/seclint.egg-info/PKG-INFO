@@ -28,17 +28,15 @@ Requires-Dist: twine; extra == "dev"
 This moduled is based on [SECOMLINT](https://github.com/TQRG/secomlint). 
 
 #### Installation
-1. Install dependencies with ```$ pip install -r requirements.txt```
-2. Install spacy model with ```$ python -m spacy download en_core_web_lg ```
+1. Run ```pip install .```
 
 
 #### Usage
 If you are running this module by itself, use the following command:
-``` $ python __main__.py [arguments]``` , where [arguments] are:
+``` $ python main.py [arguments]``` , where [arguments] are:
 
 - `--report` (str): Path to the security report\*.
-- `--compliance` (bool): If TRUE, perform compliance check against the interpretability rules.
-- `--score` (bool): If TRUE, output compliance score.
+- `--show-score` (bool): If TRUE, output compliance score.
 - `--quiet` (bool): If TRUE, show only compliance errors and warnings.
 - `--out` (str): Path to the output folder.
 
