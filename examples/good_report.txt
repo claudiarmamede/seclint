@@ -1,0 +1,39 @@
+vuln-detect: input validation/cwe-20 in example.c (severity:medium)
+
+
+what: Missing Validation for Negative Values: The code does not check if the values of m and n are negative.
+why: If negative values are provided, the condition m > MAX_DIM || n > MAX_DIM would not catch them, and they would pass through, leading to unexpected behavior.
+how: Since -1 is not greater than MAX_DIM, the check if (m > MAX_DIM || n > MAX_DIM) will pass. The malloc function will receive a very large unsigned value due to the interpretation of the negative number, potentially leading to undefined behavior or a crash.
+when: 06-18-2024
+where: example.c
+
+
+unchecked-vars: "board"
+checked-vars: "m", "n", "error", "error"
+sources: "EOF",  "m", "n", 
+sinks:  "board", "board_square_t", "error", "message"
+extra: None
+
+
+suggested-fix: To fix these vulnerabilities, you can add proper validation for negative values. 
+```
+printf("Please specify the board height: \n");
+error = scanf("%d", &m);
+if (error != 1 || m <= 0) {
+    die("Invalid input: Die evil hacker!\n");
+}
+
+printf("Please specify the board width: \n");
+error = scanf("%d", &n);
+if (error != 1 || n <= 0) {
+    die("Invalid input: Die evil hacker!\n");
+}
+```
+
+
+reported-by: reporter name <reporter-email@host.com>
+co-reported-by: reporter name <reporter-email@host.com>
+
+[For each tool used during the detection]
+method: GPT, taint analysis
+reference: https://chatgpt.com/c/af58d61a-d3f3-4443-b651-f2b34538f1f6

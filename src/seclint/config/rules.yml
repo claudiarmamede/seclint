@@ -1,0 +1,71 @@
+# active [0,1]: 0 disables the rule; 1 enables the rule. By default it is enabled.
+# type [0,1]: 0 reports an warning; 1 reports an error.
+# value: value to use for the rule.
+header_max_length:
+  active: true
+  type: 0 
+  value: 50
+header_is_not_empty:
+  active: true
+  type: 1
+  value: 0
+header_starts_with:
+  active: true
+  type: 0
+  value: 'vuln-detect'
+header_has_weakness:
+  active: true
+  type: 1
+header_has_severity:
+  active: true
+  type: 1 
+summary_has_what:
+  active: true
+  type: 1 
+summary_has_why:
+  active: true
+  type: 1 
+summary_has_how:
+  active: true
+  type: 1 
+summary_has_when: 
+  active: true
+  type: 0 
+summary_has_where:
+  active: true
+  type: 1
+summary_max_length:
+  active: true
+  type: 0
+  value: 300
+explanation_has_unchecked_vars:
+  active: true
+  type: 1
+explanation_has_checked_vars:
+  active: true
+  type: 1
+explanation_has_sources:
+  active: true
+  type: 1
+explanation_has_sinks:
+  active: true
+  type: 1
+fix_is_not_empty:
+  active: true
+  type: 1
+  value: 0
+fix_has_action:
+  active: true
+  type: 1
+reporter_has_reported_by:
+  active: true
+  type: 1
+reporter_has_co_reported_by:
+  active: true
+  type: 0
+reporter_has_method:
+  active: true
+  type: 1
+reporter_has_reference:
+  active: true
+  type: 0

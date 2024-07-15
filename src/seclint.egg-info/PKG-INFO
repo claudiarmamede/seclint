@@ -1,0 +1,74 @@
+Metadata-Version: 2.1
+Name: seclint
+Version: 0.0.1
+Summary: A short description of your project
+Home-page: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Author: Claudia Mamede
+Author-email: cmamede@andrew.cmu.edu
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click
+Requires-Dist: pyyaml
+Requires-Dist: spacy
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: twine; extra == "dev"
+
+### Check report compliance against the interpretability standard
+This moduled is based on [SECOMLINT](https://github.com/TQRG/secomlint). 
+
+#### Installation
+1. Install dependencies with ```$ pip install -r requirements.txt```
+2. Install spacy model with ```$ python -m spacy download en_core_web_lg ```
+
+
+#### Usage
+If you are running this module by itself, use the following command:
+``` $ python __main__.py [arguments]``` , where [arguments] are:
+
+- `--report` (str): Path to the security report\*.
+- `--compliance` (bool): If TRUE, perform compliance check against the interpretability rules.
+- `--score` (bool): If TRUE, output compliance score.
+- `--quiet` (bool): If TRUE, show only compliance errors and warnings.
+- `--out` (str): Path to the output folder.
+
+\* The taint analysis report does not have a strict structure. You can use any text document containing additional/helpful about the vulnerability.
+
+
+#### Examples
+```$ python main.py --report=PATH/TO/REPORT.txt --compliance=True```
+
+
+## Rule Configuration
+
+The linter has a default configuration (located at ```seclint/src/config```) that can be overridden with a `.yml` file using the following syntax: 
+
+```
+rule_name:
+    active: {true | false}
+    type: {0 - warning | 1 - error}
+    value: {string | regex}
+```
+
+An example would be:
+
+```
+header_starts_with:
+  active: true
+  type: 0
+  value: 'vuln-detect'
+header_has_weakness:
+  active: false
+```
+(The rule `header_starts_with` is active, outputs warnings and checks if header starts with type fix. The rule `header_has_weakness` was deactivated.)
+

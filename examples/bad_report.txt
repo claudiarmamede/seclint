@@ -1,0 +1,27 @@
+vuln-detect: SOMETHING_BAD in <file> (severity:<level-here>)
+
+
+what: describe the weakness/problem
+why:  describe its impact
+how:  describe how the weakness can be triggered
+when: describe when the problem was found  
+where: describe where the problem is located <file:method:lines>
+
+
+unchecked-vars: identified tainted variables not addressed by any control structure 
+checked-vars: identifies tainted variables addressed by at least 1 control structure 
+sources: identifies all entry points in code where user input enters an application
+sinks: identifies all actions performed by the application, using user input from a source
+extra: additional information (to accomodate for different vulnerability types)
+
+
+suggested-fix: ```code goes here```
+
+
+reported-by: reporter name <reporter-email@host.com>
+co-reported-by: reporter name <reporter-email@host.com>
+
+[For each tool used during the detection]
+method: something that is not a tool here
+reference: 
+

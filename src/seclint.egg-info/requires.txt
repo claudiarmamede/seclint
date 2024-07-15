@@ -1,0 +1,7 @@
+click
+pyyaml
+spacy
+
+[dev]
+pytest
+twine
