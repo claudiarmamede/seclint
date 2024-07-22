@@ -17,6 +17,7 @@ class Ruler:
                                    ))
 
     def get_section_rules(self, section : Section) -> list:
+
         return [rule for rule in self.rules
                 if type(rule.section) == type(section)]
 

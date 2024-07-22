@@ -1,4 +1,5 @@
 import re
+import seclint.tags
 
 class Result:
     def __init__(self, rule_name, result, wtype, wmessage) -> None:
@@ -17,7 +18,6 @@ class Rule:
         self.value = value
         self.section = section
 
-
     def header_max_length(self, section):
         """rule: header_max_length"""
         section_text = section.text
@@ -30,20 +30,20 @@ class Rule:
     def header_is_not_empty(self, section):
         """rule: header_is_not_empty"""
         section_text = section.text
-        if len(section_text) > self.value:
+        if len(section_text) > 0:
             return Result('header_is_not_empty', True, self.wtype,
                            'Header is not empty.')
         return Result('header_is_not_empty', False, self.wtype,
                        'Header is empty.')
 
-    def header_starts_with(self, section):
-        """rule: header_starts_with"""
-        section_text = section.text
-        if re.search(rf"^{self.value}.*", section_text):
-            return Result('header_starts_with_type', True, self.wtype,
-                           f'Header starts with {self.value} type')
-        return Result('header_starts_with_type', False, self.wtype,
-                       f'Header is missing the {self.value} type at the start.')
+    def header_has_tag(self, section):
+        """rule: header_has_tag"""  
+        section_tags = section.tags[0]
+        if section_tags in tags.HEADER:
+            return Result('header_has_tag', True, self.wtype,
+                           f'Header starts with {section_tags} type')
+        return Result('header_has_tag', False, self.wtype,
+                       f'Header is missing the {tags.HEADER} type at the start.')
 
     def header_has_weakness(self, section):
         """rule: header_has_weakness
@@ -59,9 +59,7 @@ class Rule:
                             if list(entity)[1] == 'CWEID'
                             or list(entity)[1] == 'VULNID'
                             or list(entity)[1] == 'FLAW']
-            
-            # TODO: add bugsframework label!!
-    
+                
             if len(weakness) > 0:
                 return Result('header_has_weakness', True, self.wtype,
                             'Header mentions a weakness (CWE/BF) id.')
@@ -95,20 +93,22 @@ class Rule:
         entities = section.entities
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'what' in value:
-                line_entities = (entities[key]) 
-                description = [list(line_entities)[0] 
-                                   for entity in line_entities 
-                                        if list(entity)[1] == 'SECWORD' 
-                                        or list(entity)[1] == 'FLAW' 
-                                        or list(entity)[1] == 'CWEID' 
-                                        or list(entity)[1] == 'VULNID']
-                if len(description) > 0:
-                    return Result('summary_has_what', True, self.wtype, 'Summary has the <what> tag.')
-                else:
-                    return Result('summary_has_what', False, self.wtype, 'Summary has the <what> tag but is missing a description of the problem.')
-        return Result('summary_has_what', False, self.wtype, 'Summary is missing the <what> tag.')
+        if 'what' not in tags: 
+            return Result('summary_has_what', False, self.wtype, 'Summary is missing the <what> tag.')
+
+        line_entities = entities['what']
+        description = [list(line_entities)[0] 
+                        for entity in line_entities 
+                            if list(entity)[1] == 'SECWORD' 
+                            or list(entity)[1] == 'FLAW' 
+                            or list(entity)[1] == 'CWEID' 
+                            or list(entity)[1] == 'VULNID']
+        
+        if len(description) > 0:
+            return Result('summary_has_what', True, self.wtype, 'Summary has the <what> tag.')
+        else:
+            return Result('summary_has_what', False, self.wtype, 'Summary has the <what> tag but is missing a description of the problem.')
+
 
     def summary_has_why(self, section):
         """rule: summary_has_why 
@@ -117,19 +117,20 @@ class Rule:
         entities = section.entities
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'why' in value:
-                line_entities = (entities[key]) 
-                description = [list(line_entities)[0] 
-                                   for entity in line_entities 
-                                        if list(entity)[1] == 'SECWORD' 
-                                        or list(entity)[1] == 'FLAW' 
-                                        or list(entity)[1] == 'SEVERITY']
-                if len(description) > 0:
-                    return Result('summary_has_why', True, self.wtype, 'Summary has the <why> tag.')
-                else:
-                    return Result('summary_has_why', False, self.wtype, 'Summary has the <why> tag but does not explain why the issue is relevant.')
-        return Result('summary_has_why', False, self.wtype, 'Summary is missing the <why> tag.')
+        if 'why' not in tags: 
+            return Result('summary_has_why', False, self.wtype, 'Summary is missing the <why> tag.')
+
+        line_entities = entities['why']
+        description = [list(line_entities)[0] 
+                            for entity in line_entities 
+                                if list(entity)[1] == 'SECWORD' 
+                                    or list(entity)[1] == 'FLAW' 
+                                    or list(entity)[1] == 'SEVERITY']
+        if len(description) > 0:
+            return Result('summary_has_why', True, self.wtype, 'Summary has the <why> tag.')
+        else:
+            return Result('summary_has_why', False, self.wtype, 'Summary has the <why> tag but does not explain why the issue is relevant.')
+
 
     def summary_has_how(self, section):
         """rule: summary_has_how 
@@ -138,18 +139,20 @@ class Rule:
         entities = section.entities
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'how' in value:
-                line_entities = (entities[key]) 
-                how = [list(line_entities)[0] 
-                                   for entity in line_entities 
-                                        if list(entity)[1] == 'SECWORD' 
-                                        or list(entity)[1] == 'FLAW' ]
-                if len(how) > 0:
-                    return Result('summary_has_how', True, self.wtype, 'Summary has the <how> tag.')
-                else:
-                    return Result('summary_has_how', False, self.wtype, 'Summary has the <how> tag but does not explain how to trigger the problem.')
-        return Result('summary_has_how', False, self.wtype, 'Summary is missing the <how> tag.')
+        if 'how' not in tags:
+            return Result('summary_has_how', False, self.wtype, 'Summary is missing the <how> tag.') 
+        
+        line_entities = entities['how']
+        description = [list(line_entities)[0] 
+                            for entity in line_entities 
+                                if list(entity)[1] == 'SECWORD' 
+                                or list(entity)[1] == 'FLAW' ]
+        
+        if len(description) > 0:
+            return Result('summary_has_how', True, self.wtype, 'Summary has the <how> tag.')
+        else:
+            return Result('summary_has_how', False, self.wtype, 'Summary has the <how> tag but does not explain how to trigger the problem.')
+
 
 
     def summary_has_when(self,section):
@@ -159,43 +162,40 @@ class Rule:
         entities = section.entities
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'when' in value:
-                line_entities = (entities[key]) 
-                date = [list(line_entities)[0] 
-                                   for entity in line_entities 
-                                        if list(entity)[1] == 'DATE' ]
+        if 'when' not in tags:
+            return Result('summary_has_when', False, self.wtype, 'Summary is missing the <when> tag.') 
                 
-                if len(date) > 0:
-                    return Result('summary_has_when', True, self.wtype, 'Summary has the <when> tag.')
-                else:
-                    return Result('summary_has_when', False, self.wtype, 'Summary has the <when> tag but does not say when the problem was found.')
-        return Result('summary_has_when', False, self.wtype, 'Summary is missing the <when> tag.')
+        line_entities = entities['when']
+        date = [list(line_entities)[0] 
+                    for entity in line_entities 
+                        if list(entity)[1] == 'DATE' ]
+                
+        if len(date) > 0:
+            return Result('summary_has_when', True, self.wtype, 'Summary has the <when> tag.')
+        else:
+            return Result('summary_has_when', False, self.wtype, 'Summary has the <when> tag but does not say when the problem was found.')
 
 
     def summary_has_where(self, section):
-        """ rule: summary_has_where
-            condition: explanation has the <where> tag and it provides information regarding the affected file/method/line
-        """ 
+        """rule: summary_has_where
+            condition: summary section contains tag <where> and something useful after it
+        """
         entities = section.entities
-        tags = section.tags 
+        tags = section.tags
 
-        for key, value in tags.items():
-            if 'where' in value:
-                line_entities = (entities[key]) 
-                location = [list(line_entities)[0] 
-                                   for entity in line_entities 
-                                        if list(entity)[1] == 'LOCATION']
-                
-                # TODO: refine location so that it captures method and line interval/number
-                
-                if len(location) > 0:
-                    return Result('summary_has_where', True, self.wtype, 'Summary has the <where> tag.')
-                else:
-                    return Result('summary_has_where', False, self.wtype, 'Summary has the <where> tag but does not say where the problem is')
-                
-        return Result('summary_has_where', False, self.wtype, 'Summary is missing the <where> tag.')
-    
+        if 'where' not in tags:
+            return Result('summary_has_where', False, self.wtype, 'Summary is missing the <where> tag.')
+
+        line_entities = entities['where']
+        location = [list(line_entities)[0]
+                        for entity in line_entities
+                            if list(entity)[1] == 'LOCATION']
+
+        if len(location) > 0:
+            return Result('summary_has_where', True, self.wtype, 'Summary has the <where> tag.')
+        else:
+            return Result('summary_has_where', False, self.wtype, 'Summary has the <where> tag but does not say where the problem is')
+                          
 
     def summary_max_length(self, section):
         """rule: summary_max_length 
@@ -210,23 +210,13 @@ class Rule:
                        f'Summary has more than {self.value} chars.')
     
 
-    def explanation_is_not_empty(self, section):
-        """rule: explanation_is_not_empty"""
-        section_text = section.lines
-        if len(section_text) > self.value:
-            return Result('explanation_is_not_empty', True, self.wtype, 'Explanation is not empty.')
-        return Result('explanation_is_not_empty', False, self.wtype, 'Explanation is empty.')
-
-
     # TODO: add taint information here to confirm the variables
-
     def explanation_has_unchecked_vars(self, section):
         """rule:explanation_has_unchecked_vars"""
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'unchecked-vars' in value and len(key) > len('unchecked-vars')+2: # entire line must be bigger than "TAG: "
-                return Result('explanation_has_unchecked_vars', True, self.wtype, 'Explanation gives information regarding unchecked variables.')
+        if 'unchecked-vars' in tags:
+            return Result('explanation_has_unchecked_vars', True, self.wtype, 'Explanation has the <unchecked-vars> tag.')
                 
         return Result('explanation_has_unchecked_vars', False, self.wtype, 'Explanation is missing information about <unchecked-vars>.')
     
@@ -235,8 +225,7 @@ class Rule:
         """rule:explanation_has_checked_vars"""
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'checked-vars' in value and len(key) > len('checked-vars')+2: # entire line must be bigger than "TAG: "
+        if 'checked-vars' in tags:
                 return Result('explanation_has_checked_vars', True, self.wtype, 'Explanation gives information regarding checked variables.')
                 
         return Result('explanation_has_checked_vars', False, self.wtype, 'Explanation is missing information about <checked-vars>.')
@@ -246,9 +235,8 @@ class Rule:
         """rule:explanation_has_sources"""
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'sources' in value and len(key) > len('sources')+2: # entire line must be bigger than "TAG: "
-                return Result('explanation_has_sources', True, self.wtype, 'Explanation gives information regarding sources.')
+        if 'code-sources' in tags or 'sources' in tags:
+            return Result('explanation_has_sources', True, self.wtype, 'Explanation gives information regarding sources.')
                 
         return Result('explanation_has_sources', False, self.wtype, 'Explanation is missing information about <sources>.')
     
@@ -256,12 +244,12 @@ class Rule:
         """rule:explanation_has_sinks"""
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'sinks' in value and len(key) > len('sinks')+2: # entire line must be bigger than "TAG: "
-                return Result('explanation_has_sinks', True, self.wtype, 'Explanation gives information regarding sinks.')
+        if 'sinks' in tags or 'code-sinks' in tags:
+            return Result('explanation_has_sinks', True, self.wtype, 'Explanation gives information regarding sinks.')
                 
         return Result('explanation_has_sinks', False, self.wtype, 'Explanation is missing information about <sinks>.')
     
+
     def fix_is_not_empty(self, section):
         """rule: fix_is_not_empty"""
         section_text = section.text
@@ -291,71 +279,73 @@ class Rule:
         entities = section.entities
         tags = section.tags 
 
-        for key, value in tags.items():
-            if 'reported-by' in value:
-                line_entities = (entities[key]) 
-                contacts = [list(line_entities)[0] 
+        if 'reported-by' not in tags:
+            return Result('reporter_has_reported_by', False, self.wtype, 'Report is missing the <reported-by> tag.')
+
+        line_entities = (entities['reported-by']) 
+        contacts = [list(line_entities)[0] 
                                    for entity in line_entities 
                                         if list(entity)[1] == 'EMAIL' ]
                 
-                if len(contacts) > 0:
-                    return Result('reporter_has_reported_by', True, self.wtype, 'Report has <reported-by> tag.')
-                else:
-                    return Result('reporter_has_reported_by', False, self.wtype, 'Report has the <reported-by> tag but does not identify a person.')
-        return Result('reporter_has_reported_by', False, self.wtype, 'Report is missing the <reported-by> tag.')
-
+        if len(contacts) > 0:
+            return Result('reporter_has_reported_by', True, self.wtype, 'Report has <reported-by> tag.')
+        else:
+            return Result('reporter_has_reported_by', False, self.wtype, 'Report has the <reported-by> tag but does not identify a person.')
 
     def reporter_has_co_reported_by(self, section):
         """rule: reporter_has_co_reported_by
             condition: has the <co-reported-by> tag and identifies a person """
         entities = section.entities
-        tags = section.tags 
+        tags = section.tags
 
-        for key, value in tags.items():
-            if 'co-reported-by' in value:
-                line_entities = (entities[key]) 
-                contacts = [list(line_entities)[0] 
-                                   for entity in line_entities 
+        if 'co-reported-by' not in tags:
+            return Result('reporter_has_co_reported_by', False, self.wtype, 'Report is missing the <co-reported-by> tag.')
+
+        line_entities = (entities['co-reported-by'])
+        contacts = [list(line_entities)[0]
+                                   for entity in line_entities
                                         if list(entity)[1] == 'EMAIL' ]
-                
-                if len(contacts) > 0:
-                    return Result('reporter_has_co_reported_by', True, self.wtype, 'Report has <co-reported-by> tag.')
-                else:
-                    return Result('reporter_has_co_reported_by', False, self.wtype, 'Report has the <co-reported-by> tag but does not identify a person.')
-        return Result('reporter_has_co_reported_by', False, self.wtype, 'Report is missing the <co-reported-by> tag.')
 
-
+        if len(contacts) > 0:
+            return Result('reporter_has_co_reported_by', True, self.wtype, 'Report has <co-reported-by> tag.')
+        else:
+            return Result('reporter_has_co_reported_by', False, self.wtype, 'Report has the <co-reported-by> tag but does not identify a person.')
+        
     def reporter_has_method(self, section):
+        """rule: reporter_has_method
+            condition: has the <method> tag and identifies a person """
         entities = section.entities
         tags = section.tags
 
-        for key, value in tags.items():
-            if ('method' in value) or ('strategy' in value):
-                line_entities = (entities[key])
-                methods = [list(line_entities)[0] 
-                                   for entity in line_entities 
+        if 'method' not in tags:
+            return Result('reporter_has_method', False, self.wtype, 'Report is missing the <method> tag.')
+
+        line_entities = (entities['method'])
+        methods = [list(line_entities)[0]
+                                   for entity in line_entities
                                         if list(entity)[1] == 'DETECTION' ]
-                
-                if len(methods) > 0:
-                    return Result('reporter_has_method', True, self.wtype, 'Report has <method> tag.')
-                else:
-                    return Result('reporter_has_method', False, self.wtype, 'Report has the <method> tag but does not specify the adopted strategy.')
-        return Result('reporter_has_method', False, self.wtype, 'Report is missing the <method> tag.')
 
+        if len(methods) > 0:
+            return Result('reporter_has_method', True, self.wtype, 'Report has <method> tag.')
+        else:
+            return Result('reporter_has_method', False, self.wtype, 'Report has the <method> tag but does not specify the adopted strategy.')   
 
+    
     def reporter_has_reference(self, section):
+        """rule: reporter_has_reference
+            condition: has the <reference> tag and identifies a person """
         entities = section.entities
         tags = section.tags
 
-        for key, value in tags.items():
-            if 'reference' in value:
-                line_entities = (entities[key])
-                methods = [list(line_entities)[0] 
-                                   for entity in line_entities 
+        if 'reference' not in tags:
+            return Result('reporter_has_reference', False, self.wtype, 'Report is missing the <reference> tag.')
+
+        line_entities = (entities['reference'])
+        methods = [list(line_entities)[0]
+                                   for entity in line_entities
                                         if list(entity)[1] == 'URL' ]
-                
-                if len(methods) > 0:
-                    return Result('reporter_has_reference', True, self.wtype, 'Report has <reference> tag.')
-                else:
-                    return Result('reporter_has_reference', False, self.wtype, 'Report has the <reference> tag but does not provide a URL to the tool.')
-        return Result('reporter_has_reference', False, self.wtype, 'Report is missing the <reference> tag.')
+
+        if len(methods) > 0:
+            return Result('reporter_has_reference', True, self.wtype, 'Report has <reference> tag.')
+        else:
+            return Result('reporter_has_reference', False, self.wtype, 'Report has the <reference> tag but does not provide a URL to the tool.')

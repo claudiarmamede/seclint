@@ -29,7 +29,7 @@ def main(report:str, show_score:bool, quiet:bool, out:str, rules_config:str):
     if not report: 
         print(f"❌ Can't read report at {report}") 
         return
-   
+    
     compliance = Compliance(path_config=rules_config)
     compliance.check(report)
     compliance.calculate_score()

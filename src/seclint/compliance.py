@@ -14,6 +14,7 @@ class Compliance:
         self.warnings = 0
         self.errors = 0
 
+
     def check(self, report : Report, section : Section = None):
         """ Check report compliance against the interpretability standard. """
         """ TODO: check section only """
@@ -41,7 +42,9 @@ class Compliance:
                         self.results = self.results + [result]
 
     def calculate_score(self):
-        no_rules = len(self.ruler.rules)
+        active_rules = [rule for rule in self.ruler.rules if rule.active]
+        no_rules = len(active_rules)
+
         rules_in_compliance = sum(
             [result.is_compliant for result in self.results])
         self.score = (rules_in_compliance / no_rules)

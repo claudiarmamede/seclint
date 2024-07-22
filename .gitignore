@@ -1,3 +1,4 @@
 build
 dist
 src/seclint.egg-info
+src/seclint/__pycache__

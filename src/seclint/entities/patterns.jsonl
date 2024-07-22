@@ -1863,5 +1863,6 @@
 {"label": "DATE", "pattern": [{"IS_DIGIT": true, "LENGTH": 2}, {"LOWER": {"REGEX": "-"}}, {"IS_DIGIT": true, "LENGTH": 4}, {"LOWER": {"REGEX": "-"}}, {"IS_DIGIT": true, "LENGTH": 2}]}
 
 {"label": "LOCATION", "pattern": [{"LOWER": {"REGEX": "[a-zA-Z]+\\.[a-z]+"}}]}
-
+{"label": "LOCATION", "pattern": [{"LOWER": {"REGEX": "(\\w+)*"}}, {"LOWER": "function"}, {"LOWER": {"REGEX": "(\\w+)*"}}]}
+{"label": "LOCATION", "pattern": [{"LOWER": {"REGEX": "(\\w+)*"}}, {"LOWER": "line"}, {"LOWER": {"REGEX": "(\\w+)*"}}]}
 

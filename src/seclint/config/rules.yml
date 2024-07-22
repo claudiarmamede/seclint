@@ -4,15 +4,13 @@
 header_max_length:
   active: true
   type: 0 
-  value: 50
+  value: 100
 header_is_not_empty:
   active: true
   type: 1
-  value: 0
-header_starts_with:
+header_has_tag:
   active: true
   type: 0
-  value: 'vuln-detect'
 header_has_weakness:
   active: true
   type: 1
@@ -29,7 +27,7 @@ summary_has_how:
   active: true
   type: 1 
 summary_has_when: 
-  active: true
+  active: false
   type: 0 
 summary_has_where:
   active: true
@@ -37,12 +35,12 @@ summary_has_where:
 summary_max_length:
   active: true
   type: 0
-  value: 300
+  value: 500
 explanation_has_unchecked_vars:
-  active: true
+  active: false
   type: 1
 explanation_has_checked_vars:
-  active: true
+  active: false
   type: 1
 explanation_has_sources:
   active: true
@@ -58,14 +56,14 @@ fix_has_action:
   active: true
   type: 1
 reporter_has_reported_by:
-  active: true
-  type: 1
+  active: false
+  type: 0
 reporter_has_co_reported_by:
-  active: true
+  active: false
   type: 0
 reporter_has_method:
   active: true
   type: 1
 reporter_has_reference:
-  active: true
+  active: false
   type: 0
