@@ -8,18 +8,23 @@ import re
 
 class Report:
     def __init__(self, lines) -> None:
-        self.raw_text = lines
+        text = re.sub(r'[ \t]+', ' ', lines)
+
+        self.raw_text = text
         self.sections = []
 
-    def parse(self):        
+
+    def parse(self):     
+        tag_pattern = '|'.join(HEADER + SUMMARY + EXPLANATION + FIX + REPORTER)   
         # Parse report
-        pattern = re.compile(
-            r'(?P<tag>' + '|'.join(HEADER + SUMMARY + EXPLANATION + FIX + REPORTER) + r'):\s*(?P<content>.*?)(?=\n\w|$)',
+        tag_pattern = re.compile(
+            rf'(?P<tag>{tag_pattern}):\s?(?P<content>(.*?))(?=\n(\s)*(\n)*(\s)*(?={tag_pattern}))',
+            # rf'(?P<tag>' + tag_pattern  + rf'):\s?(?P<content>(.*?))(?=\n(?={tag_pattern}):|$)', #\s?\:\s*(?P<content>(?:.|\n)*?)(?=\n(?={tag_pattern}):|\Z)',
             re.DOTALL
         )
 
         # Finding all matches
-        matches = pattern.finditer(self.raw_text)
+        matches = tag_pattern.finditer(self.raw_text)
 
         # Extracting the data into a dictionary
         parsed_data = {match.group('tag'): match.group('content').strip() for match in matches}

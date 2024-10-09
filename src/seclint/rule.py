@@ -1,5 +1,5 @@
-import re
-import seclint.tags
+# import re
+from seclint.tags import HEADER, SUMMARY, EXPLANATION, FIX, REPORTER
 
 class Result:
     def __init__(self, rule_name, result, wtype, wmessage) -> None:
@@ -39,11 +39,11 @@ class Rule:
     def header_has_tag(self, section):
         """rule: header_has_tag"""  
         section_tags = section.tags[0]
-        if section_tags in tags.HEADER:
+        if section_tags in HEADER:
             return Result('header_has_tag', True, self.wtype,
                            f'Header starts with {section_tags} type')
         return Result('header_has_tag', False, self.wtype,
-                       f'Header is missing the {tags.HEADER} type at the start.')
+                       f'Header is missing the {HEADER} type at the start.')
 
     def header_has_weakness(self, section):
         """rule: header_has_weakness
